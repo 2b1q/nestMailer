@@ -6,7 +6,8 @@ import { NewmailController } from './newmail/newmail.controller';
 import { NewmailService } from './newmail/newmail.service';
 import { MailSchema } from './schemas/mail.schema';
 
-const mongoUri = process.env.MURI || 'mongodb://localhost:27017/nestMail';
+const mongoUri =
+  process.env.MURI || 'mongodb://user:pass@localhost:27017/nestMail';
 
 @Module({
   providers: [MailService, NewmailService],
