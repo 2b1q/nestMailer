@@ -1,20 +1,6 @@
 version: "3"
 services:
 
-#    pg_jrpc:
-#        build:
-#            context: ./payment-gateway-jrpc-proxy
-#        command: npm start
-#        restart: always
-#        depends_on:
-#            - pg_redis
-#        environment:
-#            - NODE_ENV=dev
-#        networks:
-#            - pg-net
-#        links:
-#            - pg_redis:redis
-
     nest_mongo:
         image: mongo:latest
         container_name: nest_mongo
@@ -26,8 +12,9 @@ services:
         ports:
             - "27017:27017"
         environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: toor
+#            MONGO_INITDB_ROOT_USERNAME: root
+#            MONGO_INITDB_ROOT_PASSWORD: toor
+            MONGODB_DATABASE: nestMail
 
     nest_mongo-express:
         image: mongo-express
@@ -40,9 +27,9 @@ services:
         restart: always
         ports:
             - "8081:8081"
-        environment:
-            ME_CONFIG_MONGODB_ADMINUSERNAME: root
-            ME_CONFIG_MONGODB_ADMINPASSWORD: toor
+#        environment:
+#            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#            ME_CONFIG_MONGODB_ADMINPASSWORD: toor
 
 #    nest_redis:
 #        image: redis

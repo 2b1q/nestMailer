@@ -1,21 +1,24 @@
-import { Model } from 'mongoose';
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Mail } from './interfaces/mail.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Mail } from './mail.entity';
 import { CreateMailDto } from './dto/create-mail.dto';
 
 @Injectable()
 export class MailService {
-  constructor(@InjectModel('Mail') private readonly mailModel: Model<Mail>) {}
+  constructor(
+    @InjectRepository(Mail)
+    private readonly mailRepo: Repository<Mail>,
+  ) {}
   // Get ALL mails from DB
   async getAllMailRecords(): Promise<Mail[]> {
     Logger.log('client invoke getAllMailRecords()', 'mail.service');
-    return await this.mailModel.find().exec();
+    return await this.mailRepo.find();
   }
 
   // add mail
   async add(createMail: CreateMailDto): Promise<Mail> {
-    const createdMail = new this.mailModel(createMail);
-    return await createdMail.save();
+    // const createdMail = new this.mailModel(createMail);
+    return this.mailRepo.save(createMail);
   }
 }
