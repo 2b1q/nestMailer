@@ -11,7 +11,8 @@ import {
   Req,
 } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { Mail } from './interfaces/mail.interface';
+// import { Mail } from './interfaces/mail.interface';
+import { Mail } from './mail.entity';
 import { CreateMailDto } from './dto/create-mail.dto';
 
 @Controller('mail')
@@ -20,9 +21,9 @@ export class MailController {
   constructor(private readonly mailService: MailService) {}
   // Get ALL mails from DB endpoint
   @Get()
-  showAllRecords(@Query() query) {
+  showAllRecords(@Query() query): Promise<Mail[]> {
     Logger.log('client invoke "showAllRecords"', 'mail.controller');
-    return this.mailService.getAllMailRecords();
+    return this.mailService.getAllMailRecords(query);
   }
 
   // GET mail FROM DB by ID
@@ -35,7 +36,7 @@ export class MailController {
 
   // Create
   @Post()
-  Add(@Body() mail: CreateMailDto) {
+  Add(@Body() mail: CreateMailDto): Promise<Mail> {
     Logger.log('client invoke "Add" mail', 'mail.controller');
     return this.mailService.add(mail);
   }

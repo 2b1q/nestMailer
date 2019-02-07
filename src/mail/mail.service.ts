@@ -11,8 +11,11 @@ export class MailService {
     private readonly mailRepo: Repository<Mail>,
   ) {}
   // Get ALL mails from DB
-  async getAllMailRecords(): Promise<Mail[]> {
-    Logger.log('client invoke getAllMailRecords()', 'mail.service');
+  async getAllMailRecords(query: object): Promise<Mail[]> {
+    Logger.log(
+      `client invoke getAllMailRecords(${{ ...query }})`,
+      'mail.service',
+    );
     return await this.mailRepo.find();
   }
 
