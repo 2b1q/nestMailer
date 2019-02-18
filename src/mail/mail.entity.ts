@@ -1,5 +1,7 @@
 import { Entity, Column, ObjectIdColumn, ObjectID } from 'typeorm';
-
+/*
+ * 'mail' DB collection definition for typeorm
+ * */
 @Entity('mail')
 export class Mail {
   @ObjectIdColumn() id: ObjectID;

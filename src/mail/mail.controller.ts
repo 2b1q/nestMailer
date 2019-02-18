@@ -3,66 +3,51 @@ import {
   Controller,
   Delete,
   Get,
-  Logger,
   Param,
   Post,
   Put,
-  Query,
-  Req,
 } from '@nestjs/common';
-import { MailService } from './mail.service';
-// import { Mail } from './interfaces/mail.interface';
-import { Mail } from './mail.entity';
-import { CreateMailDto } from './dto/create-mail.dto';
 
+import { MailService } from './mail.service';
+import { MailDTO } from './mail.dto';
+import { Mail } from './mail.entity';
+
+/*
+ * CRUD mail controller
+ * */
 @Controller('mail')
 export class MailController {
-  // inject dependencies through constructor
+  // inject dependencies (MailService) through constructor
   constructor(private readonly mailService: MailService) {}
-  // Get ALL mails from DB endpoint
+
+  // GET ALL mails from DB endpoint
   @Get()
-  showAllRecords(@Query() query): Promise<Mail[]> {
-    return this.mailService.getAllMailRecords(query);
+  getAllRecords() {
+    return this.mailService.getAll();
   }
 
-  // GET mail FROM DB by ID
+  // GET mail FROM DB by ID endpoint
   // http://localhost:3000/mail/12344324
-  // id = 12344324
   @Get(':id')
   findOne(@Param('id') id) {
-    return this.mailService
-      .get(id)
-      .then(response => response)
-      .catch(e => {
-        Logger.error(e, '', '');
-        return e || {};
-      });
+    return this.mailService.get(id);
   }
 
-  // Create
+  // CREATE mail endpoint
   @Post()
-  Add(@Body() mail: CreateMailDto): Promise<Mail> {
-    return this.mailService.add(mail);
+  add(@Body() data: MailDTO) {
+    return this.mailService.add(data);
   }
 
-  // Update
+  // UPDATE mail by ID endpoint
   @Put(':id')
-  Update(@Param('id') id: string, @Body() mail: Partial<Mail>) {
-    return 'mail updated';
+  update(@Param('id') id, @Body() data: MailDTO) {
+    return this.mailService.update(id, data);
   }
 
-  // DELETE mail FROM DB by ID
+  // DELETE mail FROM DB by ID endpoint
   @Delete(':id')
   deleteMail(@Param('id') id) {
-    return `mail ${id} deleted`;
+    return this.mailService.delete(id);
   }
-
-  // Express req object
-  // getHeaders(@Req() req): object {
-  //   return {
-  //     reqQuery: req.query,
-  //     reqHeaders: req.headers,
-  //     reqKeys: Object.keys(req),
-  //   };
-  // }
 }
