@@ -3,7 +3,7 @@ services:
 
     nest_mongo:
         image: mongo:latest
-        container_name: nest_mongo
+        container_name: nest-mail-mongo
         restart: always
         volumes:
             - db-data:/data/db
@@ -18,6 +18,7 @@ services:
 
     nest_mongo-express:
         image: mongo-express
+        container_name: nest-mail-mongoExp
         depends_on:
             - nest_mongo
         links:
@@ -30,14 +31,6 @@ services:
 #        environment:
 #            ME_CONFIG_MONGODB_ADMINUSERNAME: root
 #            ME_CONFIG_MONGODB_ADMINPASSWORD: toor
-
-#    nest_redis:
-#        image: redis
-#        restart: always
-#        networks:
-#            - nest-net
-#        ports:
-#            - "6379:6379"
 
 networks:
     nest-net:
