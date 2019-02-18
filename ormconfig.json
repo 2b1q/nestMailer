@@ -1,0 +1,9 @@
+{
+  "type": "mongodb",
+  "host": "localhost",
+  "port": 27017,
+  "database": "nestMail",
+  "entities": ["src/**/**.entity{.ts,.js}"],
+  "synchronize": true,
+  "useNewUrlParser": true
+}

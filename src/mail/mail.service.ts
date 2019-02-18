@@ -12,10 +12,6 @@ export class MailService {
   ) {}
   // Get ALL mails from DB
   async getAllMailRecords(query: object): Promise<Mail[]> {
-    Logger.log(
-      `client invoke getAllMailRecords(${{ ...query }})`,
-      'mail.service',
-    );
     return await this.mailRepo.find();
   }
 
@@ -23,5 +19,10 @@ export class MailService {
   async add(createMail: CreateMailDto): Promise<Mail> {
     // const createdMail = new this.mailModel(createMail);
     return this.mailRepo.save(createMail);
+  }
+
+  // get mail by ID
+  async get(id: string): Promise<Mail> {
+    return this.mailRepo.findOne(id);
   }
 }

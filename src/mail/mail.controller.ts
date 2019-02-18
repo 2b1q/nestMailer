@@ -22,7 +22,6 @@ export class MailController {
   // Get ALL mails from DB endpoint
   @Get()
   showAllRecords(@Query() query): Promise<Mail[]> {
-    Logger.log('client invoke "showAllRecords"', 'mail.controller');
     return this.mailService.getAllMailRecords(query);
   }
 
@@ -31,13 +30,18 @@ export class MailController {
   // id = 12344324
   @Get(':id')
   findOne(@Param('id') id) {
-    return `This action return #${id} mail ID`;
+    return this.mailService
+      .get(id)
+      .then(response => response)
+      .catch(e => {
+        Logger.error(e, '', '');
+        return e || {};
+      });
   }
 
   // Create
   @Post()
   Add(@Body() mail: CreateMailDto): Promise<Mail> {
-    Logger.log('client invoke "Add" mail', 'mail.controller');
     return this.mailService.add(mail);
   }
 
