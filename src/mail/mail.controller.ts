@@ -41,7 +41,7 @@ export class MailController {
 
   // UPDATE mail by ID endpoint
   @Put(':id')
-  update(@Param('id') id, @Body() data: MailDTO) {
+  update(@Param('id') id, @Body() data: Partial<MailDTO>) {
     return this.mailService.update(id, data);
   }
 
