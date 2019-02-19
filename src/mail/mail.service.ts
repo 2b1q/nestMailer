@@ -23,9 +23,13 @@ export class MailService {
 
   // get mail by ID service method
   async get(id: string) {
-    const data = await this.mailRepo.findOne(id);
-    if (!data) {
-      throw new HttpException('Record not found', HttpStatus.NOT_FOUND);
+    let data; // define empty response data container
+    // handle error in sync style using try-catch
+    try {
+      data = await this.mailRepo.findOne(id); // get data
+    } catch (e) {
+      // throw HttpException
+      throw new HttpException(`Record "${id}" not exist`, HttpStatus.NOT_FOUND);
     }
     return data;
   }
@@ -37,19 +41,28 @@ export class MailService {
     return mail;
   }
 
-  //  update mail by ID service method
+  // update mail by ID service method
+  // handle error using Promise onrejected(catch) and async chaining style
   async update(id: string, data: Partial<MailDTO>) {
-    const dataToUpdate = await this.mailRepo.findOne(id);
-    if (!dataToUpdate) {
-      throw new HttpException(`Record ${id} not found`, HttpStatus.NOT_FOUND);
-    }
-    await this.mailRepo.update(id, data); // update data by ID
-    return await this.mailRepo.findOne(id); // return updated data from DB
+    return this.mailRepo
+      .findOne(id)
+      .then(async () => {
+        await this.mailRepo.update(id, data); // update data by ID
+        return await this.mailRepo.findOne(id); // return updated data from DB
+      })
+      .catch(() => {
+        throw new HttpException(
+          `Record "${id}" not found`,
+          HttpStatus.NOT_FOUND,
+        );
+      });
   }
+
   //  delete mail by ID service method
   async delete(id: string) {
-    const dataToDelete = await this.mailRepo.findOne(id);
-    if (!dataToDelete) {
+    try {
+      await this.mailRepo.findOne(id);
+    } catch (e) {
       throw new HttpException(`Record ${id} not found`, HttpStatus.NOT_FOUND);
     }
     await this.mailRepo.delete(id);
