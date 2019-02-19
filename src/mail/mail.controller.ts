@@ -6,11 +6,13 @@ import {
   Param,
   Post,
   Put,
+  UsePipes,
 } from '@nestjs/common';
 
 import { MailService } from './mail.service';
 import { MailDTO } from './mail.dto';
 import { Mail } from './mail.entity';
+import { ValidationPipe } from '../shared/validation.pipe';
 
 /*
  * CRUD mail controller
@@ -35,12 +37,14 @@ export class MailController {
 
   // CREATE mail endpoint
   @Post()
+  @UsePipes(new ValidationPipe())
   add(@Body() data: MailDTO) {
     return this.mailService.add(data);
   }
 
   // UPDATE mail by ID endpoint
   @Put(':id')
+  @UsePipes(new ValidationPipe())
   update(@Param('id') id, @Body() data: Partial<MailDTO>) {
     return this.mailService.update(id, data);
   }
