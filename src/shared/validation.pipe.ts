@@ -5,6 +5,7 @@ import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
@@ -12,11 +13,16 @@ import { plainToClass } from 'class-transformer';
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
   async transform(value: any, metadata: ArgumentMetadata) {
+    // debug metadata {type: 'body' | 'query' | 'param' | 'custom';}  & value (of body|query|param)
+    Logger.log(`metadata:\n ${JSON.stringify(metadata)}`, 'ValidationPipe');
+    Logger.log(`value:\n ${JSON.stringify(value)}`, 'ValidationPipe');
+
     const { metatype } = metadata;
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
 
+    // FIRST validation -> isEmpty body
     // if user put/post an empty partial<mail> object
     if (value instanceof Object && this.isEmpty(value)) {
       throw new HttpException(
@@ -25,6 +31,7 @@ export class ValidationPipe implements PipeTransform<any> {
       );
     }
 
+    // SECOND validation (CLASS validator => is type of properties values the same is in the mailDTO decorators)
     const object = plainToClass(metatype, value);
     const errors = await validate(object);
     if (errors.length > 0) {
@@ -38,6 +45,14 @@ export class ValidationPipe implements PipeTransform<any> {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    // 3rd validation "to" AND "from" => must be email pattern
+    if (!this.validateEmail(value.to) || !this.validateEmail(value.from)) {
+      throw new HttpException(
+        `Email validation failed: ${JSON.stringify(value)}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     return value;
   }
 
@@ -46,13 +61,24 @@ export class ValidationPipe implements PipeTransform<any> {
     return !types.find(type => metatype === type);
   }
 
-  // validate if value isEmpty
+  // validate if HTTP Body not Empty
   private isEmpty(value: any): boolean {
     return Object.keys(value).length <= 0;
   }
 
-  // Parse validation constraints
+  // Parse validation constraints (get constraints values)
   private parseErrors(errors: any[]) {
-    return errors.map(err => err.constraints);
+    return errors.map(
+      err =>
+        Object.keys(err.constraints)
+          .map(key => err.constraints[key])
+          .join(','), // convert to flat array
+    );
+  }
+
+  // email Validator
+  private validateEmail(email: any = null): boolean {
+    const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    return regex.test(email);
   }
 }

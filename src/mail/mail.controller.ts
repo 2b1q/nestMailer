@@ -11,7 +11,6 @@ import {
 
 import { MailService } from './mail.service';
 import { MailDTO } from './mail.dto';
-import { Mail } from './mail.entity';
 import { ValidationPipe } from '../shared/validation.pipe';
 
 /*
