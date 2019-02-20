@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
@@ -21,6 +22,9 @@ export class MailController {
   // inject dependencies (MailService) through constructor
   constructor(private readonly mailService: MailService) {}
 
+  // define private logger
+  private logger = new Logger('MailController');
+
   // GET ALL mails from DB endpoint
   @Get()
   getAllRecords() {
@@ -38,13 +42,18 @@ export class MailController {
   @Post()
   @UsePipes(new ValidationPipe())
   add(@Body() data: MailDTO) {
+    // log POST data
+    this.logger.log(`Add email: ${JSON.stringify(data)}`);
     return this.mailService.add(data);
   }
 
   // UPDATE mail by ID endpoint
   @Put(':id')
   @UsePipes(new ValidationPipe())
+  // update partial (not all required fields)
   update(@Param('id') id, @Body() data: Partial<MailDTO>) {
+    // log UPDATE data
+    this.logger.log(`Update email id ${id} by data: ${JSON.stringify(data)}`);
     return this.mailService.update(id, data);
   }
 

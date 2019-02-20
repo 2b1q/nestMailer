@@ -17,11 +17,6 @@ export class ValidationPipe implements PipeTransform<any> {
     Logger.log(`metadata:\n ${JSON.stringify(metadata)}`, 'ValidationPipe');
     Logger.log(`value:\n ${JSON.stringify(value)}`, 'ValidationPipe');
 
-    const { metatype } = metadata;
-    if (!metatype || !this.toValidate(metatype)) {
-      return value;
-    }
-
     // FIRST validation -> isEmpty body
     // if user put/post an empty partial<mail> object
     if (value instanceof Object && this.isEmpty(value)) {
@@ -31,7 +26,23 @@ export class ValidationPipe implements PipeTransform<any> {
       );
     }
 
-    // SECOND validation (CLASS validator => is type of properties values the same is in the mailDTO decorators)
+    // 2nd validation "to" AND "from" => must be email pattern
+    // if Update to or from could be not exists (Partial DTO)
+    if (
+      (value.to && !this.validateEmail(value.to)) ||
+      (value.from && !this.validateEmail(value.from))
+    ) {
+      throw new HttpException(
+        `Email validation failed: ${JSON.stringify(value)}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // 3rd validation (CLASS validator => is type of properties values the same is in the mailDTO decorators)
+    const { metatype } = metadata;
+    if (!metatype || !this.toValidate(metatype)) {
+      return value;
+    }
     const object = plainToClass(metatype, value);
     const errors = await validate(object);
     if (errors.length > 0) {
@@ -46,13 +57,6 @@ export class ValidationPipe implements PipeTransform<any> {
       );
     }
 
-    // 3rd validation "to" AND "from" => must be email pattern
-    if (!this.validateEmail(value.to) || !this.validateEmail(value.from)) {
-      throw new HttpException(
-        `Email validation failed: ${JSON.stringify(value)}`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     return value;
   }
 
