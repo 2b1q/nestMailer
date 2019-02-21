@@ -3,18 +3,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ObjectID,
+  ObjectIdColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import { Logger } from '@nestjs/common';
+import { UserRO } from './user.dto';
 
 @Entity('user')
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  // @PrimaryGeneratedColumn('uuid') // => using this we have an error "error while saving user: TypeError: Cannot read property 'createValueMap' of undefined"
+  // id: string;
+  @ObjectIdColumn() id: ObjectID;
 
-  @CreateDateColumn()
-  created: Date;
+  @CreateDateColumn() created: Date;
 
   @Column({
     type: 'text',
@@ -30,6 +34,10 @@ export class UserEntity {
     // bcrypt.hash(this.password, 10).then(hash => (this.password = hash));
     // OR we can use async await form
     this.password = await bcrypt.hash(this.password, 10);
+    Logger.log(
+      `hashed password: ${this.password}`,
+      'user.entity => hashThePass',
+    );
   }
 
   // compare passed plain password (attempt) with encrypted using bcrypt
@@ -38,15 +46,17 @@ export class UserEntity {
   }
 
   // construct response object without password to avoid pwd leaks
-  toResponseObject(showToken: boolean = true) {
-    const { id, created, username, token } = this;
-    const response: any = { id, created, username };
+  toResponseObject(showToken: boolean = true): UserRO {
+    const { id, created, username, token } = this; // destruct data from this
+    const response: any = { id, created, username }; // any -> bcz sometime token property can be omitted
     if (showToken) {
       response.token = token;
+      Logger.log(`jwt: ${token}`, 'user.entity => toResponseObject');
     }
     return response;
   }
 
+  // private token getter
   private get token() {
     const { id, username } = this;
     return jwt.sign({ id, username }, process.env.JWTSECRET, {
