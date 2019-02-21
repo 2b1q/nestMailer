@@ -17,7 +17,7 @@ import { ValidationPipe } from '../shared/validation.pipe';
 /*
  * CRUD mail controller
  * */
-@Controller('mail')
+@Controller('api/mail')
 export class MailController {
   // inject dependencies (MailService) through constructor
   constructor(private readonly mailService: MailService) {}

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-
 import { MailModule } from './mail/mail.module';
 import { HttpErrorFilter } from './shared/http-error.filter';
 import { LoggingInterceptor } from './shared/logging.interceptor';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [MailModule],
+  imports: [MailModule, UserModule],
   providers: [
     {
       provide: APP_FILTER,
