@@ -1,3 +1,5 @@
+import { Logger } from '@nestjs/common';
+
 import {
   BeforeInsert,
   Column,
@@ -5,16 +7,15 @@ import {
   Entity,
   ObjectID,
   ObjectIdColumn,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import { Logger } from '@nestjs/common';
 import { UserRO } from './user.dto';
 
 @Entity('user')
 export class UserEntity {
-  // @PrimaryGeneratedColumn('uuid') // => using this we have an error "error while saving user: TypeError: Cannot read property 'createValueMap' of undefined"
+  // @PrimaryGeneratedColumn('uuid') // => using this we have an error
+  // "error while saving user: TypeError: Cannot read property 'createValueMap' of undefined"
   // id: string;
   @ObjectIdColumn() id: ObjectID;
 
