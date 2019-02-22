@@ -17,17 +17,13 @@ export class AuthGuard implements CanActivate {
       return false;
     }
     // validate JWT from Authorization header
-    this.validateToken(req.headers.authorization, context);
-
+    // write decoded JWT to Express req object => user property
+    req.user = await this.validateToken(req.headers.authorization, context);
     return true;
   }
 
-  private validateRequest(req: any) {
-    return Promise.resolve(true);
-  }
-
   //  validate JWT helper
-  private validateToken(auth: string, ctx: ExecutionContext) {
+  private async validateToken(auth: string, ctx: ExecutionContext) {
     Logger.warn(
       `Got Authorization header from client: ${auth}`,
       ctx.getClass().name + ' => AuthGuard',
@@ -38,8 +34,25 @@ export class AuthGuard implements CanActivate {
     }
     // check JWT token
     const token = auth.split(' ')[1];
-    // check token in async style
-    jwt.verify(token, process.env.JWTSECRET, (err, data) => {
+    /*
+    // check token in sync style
+    try {
+      const decoded = await jwt.verify(token, process.env.JWTSECRET);
+      Logger.warn(
+        `Authorization success: ${JSON.stringify(decoded)}`,
+        ctx.getClass().name + ' => AuthGuard',
+      );
+      return decoded;
+    } catch (err) {
+      throw new HttpException(
+        `Token validation failed: ${err.message || err.name}`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    */
+
+    // check token in async (callback style)
+    return jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
       if (err) {
         throw new HttpException(
           `Token validation failed: ${err.message || err.name}`,
@@ -47,9 +60,10 @@ export class AuthGuard implements CanActivate {
         );
       }
       Logger.warn(
-        `Authorization success: ${JSON.stringify(data)}`,
+        `Authorization success: ${JSON.stringify(decoded)}`,
         ctx.getClass().name + ' => AuthGuard',
       );
+      return decoded;
     });
   }
 }

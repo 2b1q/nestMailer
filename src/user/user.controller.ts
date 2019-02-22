@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Post,
   UseGuards,
   UsePipes,
@@ -10,14 +11,18 @@ import {
 import { UserService } from './user.service';
 import { UserDto } from './user.dto';
 import { AuthGuard } from '../shared/auth.guard';
+import { User } from './user.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('api/users')
+  // Protect endpoint using guard with JWT validation
   @UseGuards(new AuthGuard())
-  showUsers() {
+  // accessing to user context using @User decorator
+  showUsers(@User('username') user) {
+    Logger.warn(`Username: ${user}`, 'UserController => @User() decorator');
     return this.userService.showUsers();
   }
 
