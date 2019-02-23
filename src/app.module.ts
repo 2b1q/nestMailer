@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+
 import { MailModule } from './mail/mail.module';
 import { HttpErrorFilter } from './shared/http-error.filter';
 import { LoggingInterceptor } from './shared/logging.interceptor';
 import { UserModule } from './user/user.module';
+import { CustomMiddleware } from './shared/custom.middleware.service';
 
 @Module({
   imports: [MailModule, UserModule],
@@ -18,4 +20,11 @@ import { UserModule } from './user/user.module';
     },
   ],
 })
-export class AppModule {}
+//  Modules that include middleware have to implement the NestModule interface.
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // attach our custom 'CustomMiddleware' middleware to the module
+    // for all routes pattern '*'
+    consumer.apply(CustomMiddleware).forRoutes('*');
+  }
+}

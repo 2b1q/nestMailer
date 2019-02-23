@@ -18,6 +18,8 @@ export class AuthGuard implements CanActivate {
     }
     // validate JWT from Authorization header
     // write decoded JWT to Express req object => user property
+    // In the node.js world, it's a common practice to attach the authorized user to the request object.
+    // That's why we assumed that request.user (req.user) contains the user instance.
     req.user = await this.validateToken(req.headers.authorization, context);
     return true;
   }
