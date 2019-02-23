@@ -26,8 +26,9 @@ export class AuthGuard implements CanActivate {
   private async validateToken(auth: string, ctx: ExecutionContext) {
     Logger.warn(
       `Got Authorization header from client: ${auth}`,
-      ctx.getClass().name + ' => AuthGuard',
+      ctx.getClass().name + ' => ' + ctx.getHandler().name + ' => AuthGuard',
     );
+
     // check Bearer word
     if (auth.split(' ')[0] !== 'Bearer') {
       throw new HttpException('Invalid token', HttpStatus.FORBIDDEN);
@@ -61,7 +62,7 @@ export class AuthGuard implements CanActivate {
       }
       Logger.warn(
         `Authorization success: ${JSON.stringify(decoded)}`,
-        ctx.getClass().name + ' => AuthGuard',
+        ctx.getClass().name + ' => ' + ctx.getHandler().name + ' => AuthGuard',
       );
       return decoded;
     });

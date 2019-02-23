@@ -22,7 +22,10 @@ export class UserController {
   @UseGuards(new AuthGuard())
   // accessing to user context using @User decorator
   showUsers(@User('username') user) {
-    Logger.warn(`Username: ${user}`, 'UserController => @User() decorator');
+    Logger.warn(
+      `Username: ${user}`,
+      'UserController => showUsers => @User() decorator ',
+    );
     return this.userService.showUsers();
   }
 
