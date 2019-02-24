@@ -14,7 +14,12 @@ export class UserService {
 
   // show all users from DB
   async showUsers(): Promise<UserRO[]> {
+    Logger.log(`Call service Before`, `UserService => showUsers()`);
     const users = await this.userRepository.find();
+    Logger.log(
+      `Call service after userRepository.find()`,
+      `UserService => showUsers()`,
+    );
     return users.map(user => user.toResponseObject(false)); // map to response object without password
   }
 

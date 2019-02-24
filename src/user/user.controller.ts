@@ -22,11 +22,14 @@ export class UserController {
   @UseGuards(new AuthGuard())
   // accessing to user context using @User decorator
   showUsers(@User('username') user) {
-    Logger.warn(
-      `Username: ${user}`,
-      'UserController => showUsers => @User() decorator ',
-    );
-    return this.userService.showUsers();
+    Logger.warn(`Username: ${user}`, 'UserController => showUsers()');
+    return this.userService.showUsers().then(data => {
+      Logger.warn(
+        `got data from service: ${JSON.stringify(data)}`,
+        `UserController => showUsers()`,
+      );
+      return data;
+    });
   }
 
   @Post('login')

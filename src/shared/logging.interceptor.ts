@@ -14,17 +14,21 @@ export class LoggingInterceptor implements NestInterceptor {
     call$: Observable<any>,
   ): Observable<any> {
     const req = context.switchToHttp().getRequest();
-    const method = req.method;
-    const url = req.url;
+    const { method, url } = req;
     const before = Date.now();
+    Logger.log(
+      `Handle ${method} ${url}`,
+      `LoggingInterceptor => ${context.getClass().name} => ${
+        context.getHandler().name
+      }`,
+    );
     return call$.pipe(
       tap(() =>
         Logger.log(
           `${method} ${url} RTT: ${Date.now() - before}ms`,
-          context.getClass().name +
-            ' => ' +
-            context.getHandler().name +
-            ' => LoggingInterceptor',
+          `LoggingInterceptor => ${context.getClass().name} => ${
+            context.getHandler().name
+          }`,
         ),
       ),
     );
