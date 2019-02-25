@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Logger,
   Param,
   Post,
@@ -67,7 +68,8 @@ export class MailController {
 
   // UPDATE mail by ID endpoint
   @Put(':id')
-  @UsePipes(new ValidationPipe())
+  @UseGuards(new AuthGuard()) // JWT AuthGuard
+  @UsePipes(new ValidationPipe()) // Data Validation pipe
   // update partial (not all required fields)
   update(@Param('id') id, @Body() data: Partial<MailDTO>) {
     // log UPDATE data
@@ -77,7 +79,12 @@ export class MailController {
 
   // DELETE mail FROM DB by ID endpoint
   @Delete(':id')
-  deleteMail(@Param('id') id) {
-    return this.mailService.delete(id);
+  @UseGuards(new AuthGuard()) // JWT AuthGuard
+  async deleteMail(@Param('id') id) {
+    const { status, result } = await this.mailService.delete(id);
+    if (status !== 200) {
+      throw new HttpException(result, status);
+    }
+    return result;
   }
 }

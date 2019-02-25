@@ -38,17 +38,15 @@ export class MailService {
 
   // get mail by ID service method
   async get(id: string): Promise<MailRO> {
-    let data; // define empty response data container
-    // handle error in sync style using try-catch
-    try {
-      data = await this.mailRepository.findOne({
-        where: { id },
-        relations: ['user'],
-      }); // get data
-    } catch (e) {
+    const data = await this.mailRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    }); // get data
+    if (!data) {
       // throw HttpException
       throw new HttpException(`Record "${id}" not exist`, HttpStatus.NOT_FOUND);
     }
+    this.logger.warn(`GET data: ${JSON.stringify(data)}`);
     return this.constructResponseObject(data);
   }
 
@@ -103,12 +101,20 @@ export class MailService {
 
   //  delete mail by ID service method
   async delete(id: string) {
-    try {
-      await this.mailRepository.findOne({ where: { id } });
-    } catch (e) {
-      throw new HttpException(`Record ${id} not found`, HttpStatus.NOT_FOUND);
-    }
-    await this.mailRepository.delete(id);
-    return { deleted: true };
+    return this.mailRepository
+      .findOne({ where: { id } })
+      .then(async mail => {
+        if (!mail) {
+          return {
+            status: 404,
+            result: `Record ${id} not found`,
+          };
+        }
+        await this.mailRepository.delete(id);
+        return { status: 200, result: `message with id: ${id} deleted` };
+      })
+      .catch(e => {
+        throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+      });
   }
 }
