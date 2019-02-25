@@ -19,12 +19,16 @@ export class MailService {
 
   // construct response object with mail and user objects
   private constructResponseObject(mail: MailEntity): MailRO {
-    return { ...mail, user: mail.user.toResponseObject(false) };
+    return {
+      ...mail,
+      user: mail.user.toResponseObject(false),
+    };
   }
 
   // Get ALL mails from DB service method
   async getAll(): Promise<MailRO[]> {
-    // add relations to user
+    this.logger.log(`getAll records from DB`);
+    // add relations to user trough userId
     const data = await this.mailRepository.find({ relations: ['user'] });
     if (!data) {
       throw new HttpException('Records not found', HttpStatus.NO_CONTENT);
@@ -49,18 +53,20 @@ export class MailService {
   }
 
   // add mail service method
-  async add(username: string, data: MailDTO): Promise<MailRO> {
+  async add(userId: string, data: MailDTO): Promise<MailRO> {
+    this.logger.log(`check user in db by userID: ${userId}`);
     // find user dispatched in controller from JWT token by @User('username') decorator
     const user = await this.userRepository.findOne({
-      where: { username },
+      where: { id: userId },
     });
     // if user not found
     if (!user) {
       throw new HttpException(
-        `User by this JWT id: ${username} not exists`,
+        `User by this JWT id: ${userId} not exists`,
         HttpStatus.BAD_REQUEST,
       );
     }
+    this.logger.log(`create new mail record using relations to user entity`);
     // Create Mail in mailRepository with relations to user.entity
     const mail = await this.mailRepository.create({
       ...data,
@@ -68,6 +74,7 @@ export class MailService {
     });
     // save data
     await this.mailRepository.save(mail);
+    this.logger.log(`record ${JSON.stringify(mail)} saved successfully`);
     // return saved data without token and password
     return this.constructResponseObject(mail);
   }
@@ -97,7 +104,7 @@ export class MailService {
   //  delete mail by ID service method
   async delete(id: string) {
     try {
-      await this.mailRepository.findOne(id);
+      await this.mailRepository.findOne({ where: { id } });
     } catch (e) {
       throw new HttpException(`Record ${id} not found`, HttpStatus.NOT_FOUND);
     }

@@ -5,7 +5,6 @@
 
 import { IsString } from 'class-validator';
 import { UserRO } from '../user/user.dto';
-import { ObjectID } from 'typeorm';
 
 export class MailDTO {
   title: string;
@@ -18,7 +17,7 @@ export class MailDTO {
 
 // Mail response object with user data
 export class MailRO {
-  id: ObjectID;
+  id: number;
   title?: string;
   to: string;
   from: string;

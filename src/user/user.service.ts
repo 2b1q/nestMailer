@@ -51,18 +51,23 @@ export class UserService {
   // register new user
   async register(data: UserDto): Promise<UserRO> {
     const { username } = data;
-    let user = await this.userRepository.findOne({ where: { username } });
+    const user = await this.userRepository.findOne({
+      where: { username },
+    });
     if (user) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `User ${user.username} already exists`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    user = this.userRepository.create(data); // create user Object is not a Promise
+    const newUser = this.userRepository.create(data); // create user Object is not a Promise
     Logger.log(
-      `User object create: ${JSON.stringify(user)}`,
+      `User object to create: ${JSON.stringify(newUser)}`,
       'user.service => register',
     );
     // save user into DB
     return this.userRepository
-      .save(user)
+      .save(newUser)
       .then(result => {
         Logger.log(
           `new user successfully saved in DB: ${JSON.stringify(result)}`,

@@ -29,12 +29,15 @@ export class MailController {
   private logger = new Logger('MailController');
 
   // Log operation and its data
-  private logData = ({ user, data }: any, operation: string) => {
+  private logData = ({ userId, username, data }: any, operation: string) => {
     operation &&
-      user &&
+      username &&
+      userId &&
       data &&
       this.logger.log(
-        `${operation} User: "${user}" DATA: ${JSON.stringify(data)}`,
+        `${operation} User: "${username}" userId: ${userId} DATA: ${JSON.stringify(
+          data,
+        )}`,
       );
   };
 
@@ -55,10 +58,11 @@ export class MailController {
   @Post()
   @UseGuards(new AuthGuard()) // JWT AuthGuard
   @UsePipes(new ValidationPipe()) // Data Validation pipe
-  add(@Body() data: MailDTO, @User('username') user) {
-    // dispatch username from JWT using @User('username') decorator and pass it to mailService.add()
-    this.logData({ user, data }, 'CREATE MAIL');
-    return this.mailService.add(user, data);
+  add(@Body() data: MailDTO, @User() user: any) {
+    // dispatch user object from JWT using @User() decorator and pass it to mailService.add()
+    const { username, id: userId } = user;
+    this.logData({ username, data, userId }, 'CREATE MAIL');
+    return this.mailService.add(userId, data);
   }
 
   // UPDATE mail by ID endpoint

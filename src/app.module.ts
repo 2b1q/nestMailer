@@ -14,7 +14,7 @@ import { UserModule } from './user/user.module';
 import { CustomMiddleware } from './shared/custom.middleware.service';
 
 @Module({
-  imports: [MailModule, UserModule],
+  imports: [MailModule, UserModule, TypeOrmModule.forRoot()],
   providers: [
     {
       provide: APP_FILTER,

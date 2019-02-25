@@ -7,10 +7,7 @@ import { MailEntity } from '../mail/mail.entity';
 import { UserEntity } from './user.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forRoot(),
-    TypeOrmModule.forFeature([MailEntity, UserEntity]),
-  ],
+  imports: [TypeOrmModule.forFeature([MailEntity, UserEntity])],
   controllers: [UserController],
   providers: [UserService],
 })

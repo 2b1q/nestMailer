@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { UserEntity } from '../user/user.entity';
@@ -17,15 +18,24 @@ import { UserEntity } from '../user/user.entity';
  * */
 @Entity('mail')
 export class MailEntity {
-  @ObjectIdColumn() id: ObjectID;
+  // @ObjectIdColumn() id: ObjectID; // for mongoDB
+  @PrimaryGeneratedColumn() id: number;
 
-  @Column() title: string;
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  title: string;
 
-  @Column() from: string;
+  @Column('text') from: string;
 
-  @Column() to: string;
+  @Column('text') to: string;
 
-  @Column() message: string;
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  message: string;
 
   @CreateDateColumn() created: Date;
 

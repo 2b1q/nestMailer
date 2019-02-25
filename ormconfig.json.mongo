@@ -1,11 +1,9 @@
 {
-  "type": "postgres",
+    "type": "mongodb",
   "host": "localhost",
-  "port": 5432,
+  "port": 27017,
   "database": "nestMail",
-  "username": "pgnest",
-  "password": "pgnest",
   "entities": ["src/**/**.entity{.ts,.js}"],
   "synchronize": true,
-  "logging": true
+  "useNewUrlParser": true
 }

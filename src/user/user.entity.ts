@@ -5,9 +5,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ObjectID,
-  ObjectIdColumn,
   OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -21,7 +20,12 @@ export class UserEntity {
   // @PrimaryGeneratedColumn('uuid') // => using this we have an error
   // "error while saving user: TypeError: Cannot read property 'createValueMap' of undefined"
   // id: string;
-  @ObjectIdColumn() id: ObjectID;
+  // @ObjectIdColumn() id: ObjectID; // for MongoDB
+  @PrimaryGeneratedColumn('uuid') id: string;
+
+  // relationship
+  @OneToMany(type => MailEntity, mail => mail.user)
+  mails: MailEntity[];
 
   // user created Date
   @CreateDateColumn() created: Date;
@@ -39,10 +43,6 @@ export class UserEntity {
   // password hash
   @Column('text')
   password: string;
-
-  // relationship
-  @OneToMany(type => MailEntity, mail => mail.user)
-  mails: MailEntity[];
 
   // before insert trigger
   @BeforeInsert()
