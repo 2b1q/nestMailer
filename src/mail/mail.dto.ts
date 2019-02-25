@@ -24,5 +24,16 @@ export class MailRO {
   created: Date;
   updated: Date;
   message?: string;
-  user: UserRO;
+  user?: UserRO;
+}
+
+// Mail response object without user data
+export class MailWithoutUserRO {
+  id: number;
+  title?: string;
+  to: string;
+  from: string;
+  created: Date;
+  updated: Date;
+  message?: string;
 }

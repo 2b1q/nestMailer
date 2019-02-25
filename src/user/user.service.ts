@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
-import { UserDto, UserRO } from './user.dto';
+import { UserDto, UserRO, UserWithMailsRO } from './user.dto';
+import { MailDTO, MailRO } from '../mail/mail.dto';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,27 @@ export class UserService {
       `UserService => showUsers()`,
     );
     return users.map(user => user.toResponseObject(false)); // map to response object without password
+  }
+
+  // getUser with mails OneToMany relations
+  async getUser(userId: string): Promise<UserWithMailsRO> {
+    const userWithMails = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['mails'], // relate to mails
+    });
+    if (!userWithMails) {
+      throw new HttpException(
+        `data for userId ${userId} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    Logger.warn(
+      `user with mails data: ${JSON.stringify(userWithMails)}`,
+      'getUser',
+    );
+    // delete user password hash property from response object
+    delete userWithMails.password;
+    return userWithMails;
   }
 
   // check user and login
