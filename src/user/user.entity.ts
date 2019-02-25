@@ -7,10 +7,14 @@ import {
   Entity,
   ObjectID,
   ObjectIdColumn,
+  OneToMany,
+  UpdateDateColumn,
 } from 'typeorm';
+
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { UserRO } from './user.dto';
+import { MailEntity } from '../mail/mail.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -19,17 +23,28 @@ export class UserEntity {
   // id: string;
   @ObjectIdColumn() id: ObjectID;
 
+  // user created Date
   @CreateDateColumn() created: Date;
 
+  // user updated Date
+  @UpdateDateColumn() updated: Date;
+
+  // uniq username
   @Column({
     type: 'text',
     unique: true,
   })
   username: string;
 
+  // password hash
   @Column('text')
   password: string;
 
+  // relationship
+  @OneToMany(type => MailEntity, mail => mail.user)
+  mails: MailEntity[];
+
+  // before insert trigger
   @BeforeInsert()
   async hashThePass() {
     // bcrypt.hash(this.password, 10).then(hash => (this.password = hash));
@@ -48,8 +63,8 @@ export class UserEntity {
 
   // construct response object without password to avoid pwd leaks
   toResponseObject(showToken: boolean = true): UserRO {
-    const { id, created, username, token } = this; // destruct data from this
-    const response: any = { id, created, username }; // any -> bcz sometime token property can be omitted
+    const { id, created, updated, username, token } = this; // destruct data from this
+    const response: any = { id, created, updated, username }; // any -> bcz sometime token property can be omitted
     if (showToken) {
       response.token = token;
       Logger.log(`jwt: ${token}`, 'user.entity => toResponseObject');

@@ -3,13 +3,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { MailService } from './mail.service';
 import { MailController } from './mail.controller';
-import { NewmailController } from './newmail/newmail.controller';
-import { NewmailService } from './newmail/newmail.service';
-import { Mail } from './mail.entity';
+import { MailEntity } from './mail.entity';
+import { UserEntity } from '../user/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), TypeOrmModule.forFeature([Mail])],
-  providers: [MailService, NewmailService],
-  controllers: [MailController, NewmailController],
+  imports: [
+    TypeOrmModule.forRoot(),
+    TypeOrmModule.forFeature([MailEntity, UserEntity]),
+  ],
+  providers: [MailService],
+  controllers: [MailController],
 })
 export class MailModule {}

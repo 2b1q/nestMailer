@@ -1,5 +1,11 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { MailModule } from './mail/mail.module';
 import { HttpErrorFilter } from './shared/http-error.filter';
@@ -25,6 +31,9 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // attach our custom 'CustomMiddleware' middleware to the module
     // for all routes pattern '*'
-    consumer.apply(CustomMiddleware).forRoutes('*');
+    consumer.apply(CustomMiddleware).forRoutes({
+      path: '*',
+      method: RequestMethod.ALL,
+    });
   }
 }

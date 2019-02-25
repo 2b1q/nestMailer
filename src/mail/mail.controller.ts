@@ -7,12 +7,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 
 import { MailService } from './mail.service';
 import { MailDTO } from './mail.dto';
 import { ValidationPipe } from '../shared/validation.pipe';
+import { AuthGuard } from '../shared/auth.guard';
+import { User } from '../user/user.decorator';
 
 /*
  * CRUD mail controller
@@ -24,6 +27,16 @@ export class MailController {
 
   // define private logger
   private logger = new Logger('MailController');
+
+  // Log operation and its data
+  private logData = ({ user, data }: any, operation: string) => {
+    operation &&
+      user &&
+      data &&
+      this.logger.log(
+        `${operation} User: "${user}" DATA: ${JSON.stringify(data)}`,
+      );
+  };
 
   // GET ALL mails from DB endpoint
   @Get()
@@ -40,11 +53,12 @@ export class MailController {
 
   // CREATE mail endpoint
   @Post()
-  @UsePipes(new ValidationPipe())
-  add(@Body() data: MailDTO) {
-    // log POST data
-    this.logger.log(`Add email: ${JSON.stringify(data)}`);
-    return this.mailService.add(data);
+  @UseGuards(new AuthGuard()) // JWT AuthGuard
+  @UsePipes(new ValidationPipe()) // Data Validation pipe
+  add(@Body() data: MailDTO, @User('username') user) {
+    // dispatch username from JWT using @User('username') decorator and pass it to mailService.add()
+    this.logData({ user, data }, 'CREATE MAIL');
+    return this.mailService.add(user, data);
   }
 
   // UPDATE mail by ID endpoint

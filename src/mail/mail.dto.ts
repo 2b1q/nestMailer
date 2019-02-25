@@ -1,9 +1,11 @@
 /*
- * Mail object interface definition
+ * MailEntity object interface definition
  * and class validator
  * */
 
 import { IsString } from 'class-validator';
+import { UserRO } from '../user/user.dto';
+import { ObjectID } from 'typeorm';
 
 export class MailDTO {
   title: string;
@@ -12,5 +14,16 @@ export class MailDTO {
   @IsString()
   to: string;
   message: string;
-  date: string;
+}
+
+// Mail response object with user data
+export class MailRO {
+  id: ObjectID;
+  title?: string;
+  to: string;
+  from: string;
+  created: Date;
+  updated: Date;
+  message?: string;
+  user: UserRO;
 }

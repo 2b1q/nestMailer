@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+import { ObjectID } from 'typeorm';
 
 export class UserDto {
   @IsNotEmpty()
@@ -9,8 +10,9 @@ export class UserDto {
 }
 
 export class UserRO {
-  id: string;
+  id: ObjectID;
   created: Date;
+  updated: Date;
   username: string;
   token?: string;
 }

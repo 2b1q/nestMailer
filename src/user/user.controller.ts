@@ -17,17 +17,16 @@ import { User } from './user.decorator';
 export class UserController {
   constructor(private userService: UserService) {}
 
+  private logger = new Logger('UserController');
+
   @Get('api/users')
   // Protect endpoint using guard with JWT validation
   @UseGuards(new AuthGuard())
   // accessing to user context using @User decorator
   showUsers(@User('username') user) {
-    Logger.warn(`Username: ${user}`, 'UserController => showUsers()');
+    this.logger.warn(`Username: ${user}`);
     return this.userService.showUsers().then(data => {
-      Logger.warn(
-        `got data from service: ${JSON.stringify(data)}`,
-        `UserController => showUsers()`,
-      );
+      this.logger.warn(`got data from service: ${JSON.stringify(data)}`);
       return data;
     });
   }
