@@ -13,19 +13,33 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
+  private logger = new Logger('UserService');
+
+  // pretty log
+  private logData = ({ data, userId }: any, operation: string): void => {
+    const execOps = `EXEC ${operation} >>>`;
+    const returnOps = `RETURN ${operation} <<<`;
+    userId &&
+      data &&
+      this.logger.warn(
+        `${returnOps} for userId ${userId} ${JSON.stringify(data)}`,
+      );
+    userId && !data && this.logger.warn(`${execOps} userId ${userId}`);
+    !userId && !data && this.logger.warn(`${execOps}`);
+    !userId && data && this.logger.warn(`${returnOps} ${JSON.stringify(data)}`);
+  };
+
   // show all users from DB
   async showUsers(): Promise<UserRO[]> {
-    Logger.log(`Call service Before`, `UserService => showUsers()`);
+    this.logData({}, 'showUsers()');
     const users = await this.userRepository.find();
-    Logger.log(
-      `Call service after userRepository.find()`,
-      `UserService => showUsers()`,
-    );
+    this.logData({ data: users }, 'showUsers()');
     return users.map(user => user.toResponseObject(false)); // map to response object without password
   }
 
   // getUser with mails OneToMany relations
   async getUser(userId: string): Promise<UserWithMailsRO> {
+    this.logData({ userId }, 'getUser()');
     const userWithMails = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['mails'], // relate to mails
@@ -36,10 +50,7 @@ export class UserService {
         HttpStatus.NOT_FOUND,
       );
     }
-    Logger.warn(
-      `user with mails data: ${JSON.stringify(userWithMails)}`,
-      'getUser',
-    );
+    this.logData({ userId, data: userWithMails }, 'getUser()');
     // delete user password hash property from response object
     delete userWithMails.password;
     return userWithMails;
