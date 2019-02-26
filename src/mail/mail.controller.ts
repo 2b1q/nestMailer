@@ -29,40 +29,42 @@ export class MailController {
   // define private logger
   private logger = new Logger('MailController');
 
-  // Log operation and its data
-  private logData = ({ userId, username, data }: any, operation: string) => {
-    operation &&
-      username &&
-      userId &&
+  // pretty log
+  private logData = ({ data, userId }: any, operation: string): void => {
+    const execOps = `EXEC ${operation} >>>`;
+    const returnOps = `RETURN ${operation} <<<`;
+    userId &&
       data &&
       this.logger.log(
-        `${operation} User: "${username}" userId: ${userId} DATA: ${JSON.stringify(
-          data,
-        )}`,
+        `${returnOps} for userId ${userId} ${JSON.stringify(data)}`,
       );
+    userId && !data && this.logger.log(`${execOps} userId ${userId}`);
+    !userId && !data && this.logger.log(`${execOps}`);
+    !userId && data && this.logger.log(`${returnOps} ${JSON.stringify(data)}`);
   };
 
   // GET ALL mails from DB endpoint
   @Get()
   getAllRecords() {
+    this.logData({}, 'getAllRecords');
     return this.mailService.getAll();
   }
 
   // GET mail FROM DB by ID endpoint
   // http://localhost:3000/mail/12344324
   @Get(':id')
-  findOne(@Param('id') id) {
-    return this.mailService.get(id);
+  @UseGuards(new AuthGuard())
+  findOne(@Param('id') id, @User('id') userId) {
+    this.logData({ userId }, `findOne by id: ${id}`);
+    return this.mailService.get(id, userId);
   }
 
   // CREATE mail endpoint
   @Post()
   @UseGuards(new AuthGuard()) // JWT AuthGuard
   @UsePipes(new ValidationPipe()) // Data Validation pipe
-  add(@Body() data: MailDTO, @User() user: any) {
-    // dispatch user object from JWT using @User() decorator and pass it to mailService.add()
-    const { username, id: userId } = user;
-    this.logData({ username, data, userId }, 'CREATE MAIL');
+  add(@Body() data: MailDTO, @User('id') userId: any) {
+    this.logData({ data, userId }, 'ADD MAIL');
     return this.mailService.add(userId, data);
   }
 
@@ -71,20 +73,17 @@ export class MailController {
   @UseGuards(new AuthGuard()) // JWT AuthGuard
   @UsePipes(new ValidationPipe()) // Data Validation pipe
   // update partial (not all required fields)
-  update(@Param('id') id, @Body() data: Partial<MailDTO>) {
+  update(@Param('id') id, @User('id') userId, @Body() data: Partial<MailDTO>) {
     // log UPDATE data
-    this.logger.log(`Update email id ${id} by data: ${JSON.stringify(data)}`);
-    return this.mailService.update(id, data);
+    this.logData({ data, userId }, `UPDATE MAIL with id: ${id}`);
+    return this.mailService.update(id, userId, data);
   }
 
   // DELETE mail FROM DB by ID endpoint
   @Delete(':id')
   @UseGuards(new AuthGuard()) // JWT AuthGuard
-  async deleteMail(@Param('id') id) {
-    const { status, result } = await this.mailService.delete(id);
-    if (status !== 200) {
-      throw new HttpException(result, status);
-    }
-    return result;
+  async deleteMail(@Param('id') id, @User('id') userId) {
+    this.logData({ userId }, `DELETE MAIL with id: ${id}`);
+    return { result: await this.mailService.delete(id, userId) };
   }
 }

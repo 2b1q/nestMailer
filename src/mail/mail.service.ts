@@ -17,6 +17,16 @@ export class MailService {
 
   private logger = new Logger('MailService');
 
+  // ensure that userId do CRUD ops on his records
+  private ensureOwnership = (userId: string, mail: MailEntity) => {
+    if (userId !== mail.user.id) {
+      throw new HttpException(
+        `User with id ${userId} has no access to this mail.id ${mail.id}`,
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+  };
+
   // construct response object with mail and user objects
   private constructResponseObject(mail: MailEntity): MailRO {
     return {
@@ -26,6 +36,7 @@ export class MailService {
   }
 
   // Get ALL mails from DB service method
+  // allowed for all users
   async getAll(): Promise<MailRO[]> {
     this.logger.log(`getAll records from DB`);
     // add relations to user trough userId
@@ -37,7 +48,8 @@ export class MailService {
   }
 
   // get mail by ID service method
-  async get(id: string): Promise<MailRO> {
+  async get(id: string, userId: string): Promise<MailRO> {
+    // find mail by mail.id with relations to user.entity
     const data = await this.mailRepository.findOne({
       where: { id },
       relations: ['user'],
@@ -46,6 +58,8 @@ export class MailService {
       // throw HttpException
       throw new HttpException(`Record "${id}" not exist`, HttpStatus.NOT_FOUND);
     }
+    // ensure user can read this mail
+    this.ensureOwnership(userId, data);
     this.logger.warn(`GET data: ${JSON.stringify(data)}`);
     return this.constructResponseObject(data);
   }
@@ -79,10 +93,22 @@ export class MailService {
 
   // update mail by ID service method
   // handle error using Promise onrejected(catch) and async chaining style
-  async update(id: string, data: Partial<MailDTO>): Promise<MailRO> {
+  async update(
+    id: string, // mail.id
+    userId: string, // mail.user.id
+    data: Partial<MailDTO>,
+  ): Promise<MailRO> {
     return this.mailRepository
       .findOne({ where: { id }, relations: ['user'] })
-      .then(async () => {
+      .then(async mail => {
+        if (!mail) {
+          throw new HttpException(
+            `Record "${id}" not found`,
+            HttpStatus.NOT_FOUND,
+          );
+        }
+        // ensure that user granted to update this mail record
+        this.ensureOwnership(userId, mail);
         await this.mailRepository.update(id, data); // update data by ID
         return this.constructResponseObject(
           await this.mailRepository.findOne({
@@ -90,31 +116,24 @@ export class MailService {
             relations: ['user'],
           }),
         ); // return updated data from DB
-      })
-      .catch(() => {
-        throw new HttpException(
-          `Record "${id}" not found`,
-          HttpStatus.NOT_FOUND,
-        );
       });
   }
 
   //  delete mail by ID service method
-  async delete(id: string) {
+  async delete(id: string, userId: string) {
     return this.mailRepository
-      .findOne({ where: { id } })
+      .findOne({ where: { id }, relations: ['user'] })
       .then(async mail => {
         if (!mail) {
-          return {
-            status: 404,
-            result: `Record ${id} not found`,
-          };
+          throw new HttpException(
+            `Record "${id}" not found`,
+            HttpStatus.NOT_FOUND,
+          );
         }
+        // ensure that user granted to delete this mail record
+        this.ensureOwnership(userId, mail);
         await this.mailRepository.delete(id);
-        return { status: 200, result: `message with id: ${id} deleted` };
-      })
-      .catch(e => {
-        throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        return `message with id: ${id} deleted`;
       });
   }
 }
