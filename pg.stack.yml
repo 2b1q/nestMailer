@@ -18,6 +18,14 @@ services:
       POSTGRES_PASSWORD: pgnest
       POSTGRES_DB: nestMail
 
+  nest_redis:
+    image: redis
+    restart: always
+    networks:
+      - nest-net
+    ports:
+      - 6379:6379
+
   nest_adminer:
     image: adminer
     depends_on:
