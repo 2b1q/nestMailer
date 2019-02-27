@@ -3,38 +3,26 @@ import {
   Client,
   ClientProxy,
   ClientProxyFactory,
+  MessagePattern,
   Transport,
 } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
 @Controller('rpc')
 export class RpcController {
-  // constructor() {
-  //   this.client = ClientProxyFactory.create({
-  //     transport: Transport.REDIS,
-  //     options: {
-  //       url: 'redis://localhost:6379',
-  //     },
-  //   });
-  // }
-
-  @Client({
-    transport: Transport.REDIS,
-    options: {
-      url: 'redis://localhost:6379',
-    },
-  })
-  private client: ClientProxy;
+  @Client({ transport: Transport.REDIS })
+  client: ClientProxy;
 
   @Get('ping/:service')
-  async ping(@Param('service') service: string) {
+  call(@Param('service') service: string): Observable<number> {
     Logger.warn(`call method ping to service: ${service}`, 'RpcController');
+    const pattern = { cmd: 'ping' };
+    const data = [1, 2, 3, 4, 5, { service, cmd: 'ping' }];
+    return this.client.send<any>(pattern, data);
+  }
 
-    const conn = await this.client.connect();
-    this.client.send({ cmd: 'ping' }, { msg: 123 });
-    // mock data
-    return {
-      status: conn,
-      service,
-    };
+  @MessagePattern({ cmd: 'ping' })
+  sum(data: any): any {
+    return data || {};
   }
 }
