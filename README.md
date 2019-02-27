@@ -36,8 +36,9 @@ It has:
 - &#9745; AUTH users by JWT
 - &#9745; custom middleware, AuthGuard, validation pipes, ExceptionFilter, RTT LoggerInterceptor
 - &#9745; TypeORM entities relations
-- &#9744; mail fetcher microservice
-- &#9744; RPC between microservices
+- &#9745; init mail fetcher microservice
+- &#9745; RPC between microservices
+- &#9744; mail fetcher behavior
 - &#9744; GMAIL google API pub/sub message handler
 
 ## Installation
