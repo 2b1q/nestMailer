@@ -30,7 +30,7 @@ export class MailController {
   private logger = new Logger('MailController');
 
   // pretty log
-  private logData = ({ data, userId }: any, operation: string): void => {
+  private logData({ data, userId }: any, operation: string): void {
     const execOps = `EXEC ${operation} >>>`;
     const returnOps = `RETURN ${operation} <<<`;
     userId &&
@@ -41,7 +41,7 @@ export class MailController {
     userId && !data && this.logger.log(`${execOps} userId ${userId}`);
     !userId && !data && this.logger.log(`${execOps}`);
     !userId && data && this.logger.log(`${returnOps} ${JSON.stringify(data)}`);
-  };
+  }
 
   // GET ALL mails from DB endpoint
   @Get()
