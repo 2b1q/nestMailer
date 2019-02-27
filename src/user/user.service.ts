@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
 import { UserDto, UserRO, UserWithMailsRO } from './user.dto';
-import { MailDTO, MailRO } from '../mail/mail.dto';
 
 @Injectable()
 export class UserService {
@@ -16,7 +15,7 @@ export class UserService {
   private logger = new Logger('UserService');
 
   // pretty log
-  private logData = ({ data, userId }: any, operation: string): void => {
+  private logData({ data, userId }: any, operation: string): void {
     const execOps = `EXEC ${operation} >>>`;
     const returnOps = `RETURN ${operation} <<<`;
     userId &&
@@ -27,7 +26,7 @@ export class UserService {
     userId && !data && this.logger.warn(`${execOps} userId ${userId}`);
     !userId && !data && this.logger.warn(`${execOps}`);
     !userId && data && this.logger.warn(`${returnOps} ${JSON.stringify(data)}`);
-  };
+  }
 
   // show all users from DB
   async showUsers(): Promise<UserRO[]> {

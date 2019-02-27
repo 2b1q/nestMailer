@@ -20,7 +20,7 @@ export class UserController {
 
   private logger = new Logger('UserController');
 
-  private logData = ({ userId, username, data }: any, operation: string) => {
+  private logData({ userId, username, data }: any, operation: string) {
     userId && this.logger.log(`userId: ${userId} call operation: ${operation}`);
     username &&
       this.logger.log(`username: ${username} call operation: ${operation}`);
@@ -32,7 +32,7 @@ export class UserController {
       this.logger.log(
         `username: ${username} got data: ${JSON.stringify(data)}`,
       );
-  };
+  }
 
   @Get('api/users')
   // Protect endpoint using guard with JWT validation

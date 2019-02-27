@@ -18,14 +18,14 @@ export class MailService {
   private logger = new Logger('MailService');
 
   // ensure that userId do CRUD ops on his records
-  private ensureOwnership = (userId: string, mail: MailEntity) => {
+  private ensureOwnership(userId: string, mail: MailEntity) {
     if (userId !== mail.user.id) {
       throw new HttpException(
         `User with id ${userId} has no access to this mail.id ${mail.id}`,
         HttpStatus.UNAUTHORIZED,
       );
     }
-  };
+  }
 
   // construct response object with mail and user objects
   private constructResponseObject(mail: MailEntity): MailRO {
