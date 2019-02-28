@@ -17,11 +17,18 @@ export class HttpRpcController {
     return data || {};
   }
 
+  // handle RPC message with pattern { cmd: 'pong' }
   @MessagePattern({ cmd: 'pong' })
   pong(data: any) {
+    // log data from RedisRPC
     Logger.log(
       `got cmd pong with data\n${JSON.stringify(data)}`,
       `HttpRpcController`,
     );
+    // return RPC response
+    return {
+      msg: 'response',
+      fromService: 'nestMail.gw.HttpRpcController',
+    };
   }
 }
