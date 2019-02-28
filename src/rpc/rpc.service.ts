@@ -31,7 +31,11 @@ export class RpcService {
   rpcPing(service: string) {
     // construct RPC CMD pattern and payload
     const pattern = { cmd: 'ping' };
-    const data = { service, payload: [1, 2, 3, 4, 5] };
+    const data = {
+      toService: 'nestMail.' + service,
+      fromService: 'nestMail.gw.RpcService',
+      payload: [1, 2, 3, 4, 5],
+    };
     // log sending data
     this.logData({ data, pattern }, true);
     return this.client.send<any>(pattern, data);
