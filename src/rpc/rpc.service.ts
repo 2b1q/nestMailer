@@ -1,13 +1,6 @@
-import { Injectable, Logger, Param } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
-import {
-  Client,
-  ClientProxy,
-  ClientProxyFactory,
-  MessagePattern,
-  Transport,
-} from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { Client, ClientProxy, Transport } from '@nestjs/microservices';
 
 @Injectable()
 export class RpcService {
