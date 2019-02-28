@@ -12,7 +12,8 @@ import { HttpErrorFilter } from './shared/http-error.filter';
 import { LoggingInterceptor } from './shared/logging.interceptor';
 import { UserModule } from './user/user.module';
 import { CustomMiddleware } from './shared/custom.middleware.service';
-import { RpcController } from './rpc/rpc.controller';
+import { HttpRpcController } from './rpc/httpRpcController';
+import { RpcService } from './rpc/rpc.service';
 
 @Module({
   imports: [MailModule, UserModule, TypeOrmModule.forRoot()],
@@ -25,8 +26,9 @@ import { RpcController } from './rpc/rpc.controller';
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor, // global Logger interceptor
     },
+    RpcService,
   ],
-  controllers: [RpcController],
+  controllers: [HttpRpcController],
 })
 //  Modules that include middleware have to implement the NestModule interface.
 export class AppModule implements NestModule {
